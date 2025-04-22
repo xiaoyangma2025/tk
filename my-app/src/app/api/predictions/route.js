@@ -11,6 +11,8 @@ const WEBHOOK_HOST = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : process.env.NGROK_HOST;
 
+console.log("Using Replicate API Token:", process.env.REPLICATE_API_TOKEN);
+
 export async function POST(request) {
   if (!process.env.REPLICATE_API_TOKEN) {
     throw new Error(
@@ -30,10 +32,13 @@ export async function POST(request) {
     options.webhook_events_filter = ["start", "completed"]
   }
 
+  console.log("Prediction options:", options);
+
   // A prediction is the result you get when you run a model, including the input, output, and other details
   const prediction = await replicate.predictions.create(options);
 
   if (prediction?.error) {
+    console.error("Prediction error:", prediction.error);
     return NextResponse.json({ detail: prediction.error }, { status: 500 });
   }
 
